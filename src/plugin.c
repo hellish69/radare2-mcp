@@ -56,6 +56,8 @@ static int r2mcp_fini(void *user, const char *input) {
 	(void)user;
 	(void)input;
 	if (g_data.ss) {
+		r_strbuf_free (g_data.ss->sb);
+		g_data.ss->sb = NULL;
 		free (g_data.ss);
 		g_data.ss = NULL;
 	}

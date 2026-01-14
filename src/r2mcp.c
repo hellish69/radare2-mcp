@@ -11,6 +11,7 @@
 #include <r_util/r_print.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 

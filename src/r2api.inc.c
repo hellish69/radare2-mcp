@@ -28,14 +28,39 @@ static void logcb(const char *output, const char *funcname, const char *filename
 	(void)filename;
 	(void)lineno;
 	(void)tag;
-	(void)fmtstr;
 	if (level > R_LOGLVL_WARN) {
 		return;
 	}
-	if (!output || !log_ss || !log_ss->sb) {
+	if (!log_ss || !log_ss->sb) {
 		return;
 	}
-	r_strbuf_appendf (log_ss->sb, "[%d] %s\n", (int)level, output);
+	const char *msg = output;
+	char *tmp = NULL;
+	if (!msg && fmtstr) {
+		va_list ap;
+		va_start (ap, fmtstr);
+		int len = vsnprintf (NULL, 0, fmtstr, ap);
+		va_end (ap);
+		if (len > 0) {
+			tmp = malloc ((size_t)len + 1);
+			if (tmp) {
+				va_start (ap, fmtstr);
+				vsnprintf (tmp, (size_t)len + 1, fmtstr, ap);
+				va_end (ap);
+				msg = tmp;
+			}
+		}
+	}
+	if (!msg) {
+		if (tmp) {
+			free (tmp);
+		}
+		return;
+	}
+	r_strbuf_appendf (log_ss->sb, "[%d] %s\n", (int)level, msg);
+	if (tmp) {
+		free (tmp);
+	}
 }
 
 static void r2mcp_log_reset(ServerState *ss) {
