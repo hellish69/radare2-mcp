@@ -155,7 +155,9 @@ static int run_statement(ServerState *ss, char *stmt, RCore *core) {
 }
 
 int r2mcp_run_dsl_tests(ServerState *ss, const char *dsl, RCore *core) {
-	R_RETURN_VAL_IF_FAIL (dsl, 1);
+	if (!dsl) {
+		return 1;
+	}
 	char *copy = strdup (dsl);
 	char *cur = copy;
 	char *semi;

@@ -12,9 +12,11 @@ typedef struct r2mcp_data_t {
 	ServerState *ss;
 } R2mcpData;
 
-static bool r2mcp_call(RCorePluginSession *cps, const char *input) {
-	RCore *core = cps->core;
-	R2mcpData *data = cps->data;
+static R2mcpData g_data;
+
+static int r2mcp_call(void *user, const char *input) {
+	RCore *core = (RCore *)user;
+	R2mcpData *data = &g_data;
 
 	if (!r_str_startswith (input, "r2mcp")) {
 		return false;
@@ -43,31 +45,32 @@ static bool r2mcp_call(RCorePluginSession *cps, const char *input) {
 	return true;
 }
 
-static bool r2mcp_init(RCorePluginSession *cps) {
-	R2mcpData *data = R_NEW0 (R2mcpData);
-	cps->data = data;
+static int r2mcp_init(void *user, const char *input) {
+	(void)user;
+	(void)input;
+	g_data.ss = NULL;
 	return true;
 }
 
-static bool r2mcp_fini(RCorePluginSession *cps) {
-	R2mcpData *data = cps->data;
-	if (data) {
-		if (data->ss) {
-			free (data->ss);
-		}
-		free (data);
+static int r2mcp_fini(void *user, const char *input) {
+	(void)user;
+	(void)input;
+	if (g_data.ss) {
+		r_strbuf_free (g_data.ss->sb);
+		g_data.ss->sb = NULL;
+		free (g_data.ss);
+		g_data.ss = NULL;
 	}
 	return true;
 }
 
 // PLUGIN Definition Info
 RCorePlugin r_core_plugin_r2mcp = {
-	.meta = {
-		.name = "core-r2mcp",
-		.desc = "r2mcp command integration for radare2",
-		.author = "pancake",
-		.license = "MIT",
-	},
+	.name = "core-r2mcp",
+	.desc = "r2mcp command integration for radare2",
+	.license = "MIT",
+	.author = "pancake",
+	.version = R2_VERSION,
 	.call = r2mcp_call,
 	.init = r2mcp_init,
 	.fini = r2mcp_fini,
@@ -77,7 +80,6 @@ RCorePlugin r_core_plugin_r2mcp = {
 R_API RLibStruct radare_plugin = {
 	.type = R_LIB_TYPE_CORE,
 	.data = &r_core_plugin_r2mcp,
-	.version = R2_VERSION,
-	.abiversion = R2_ABIVERSION
+	.version = R2_VERSION
 };
 #endif

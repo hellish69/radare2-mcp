@@ -746,7 +746,7 @@ static char *tool_run_javascript(ServerState *ss, RJson *tool_args) {
 	if (!validate_required_string_param (tool_args, "script", &script)) {
 		return jsonrpc_error_missing_param ("script");
 	}
-	char *encoded = r_base64_encode_dyn ((const ut8 *)script, strlen (script));
+	char *encoded = r_base64_encode_dyn (script, strlen (script));
 
 	if (!encoded) {
 
