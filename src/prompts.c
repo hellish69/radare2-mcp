@@ -77,6 +77,17 @@ static char *json_messages_obj2(char *m1, char *m2) {
 	return r_strbuf_drain (sb);
 }
 
+static const char *prompt_json_get_str(RJson *json, const char *key) {
+	if (!json || !key) {
+		return NULL;
+	}
+	RJson *field = (RJson *)r_json_get (json, key);
+	if (!field || field->type != R_JSON_STRING) {
+		return NULL;
+	}
+	return field->str_value;
+}
+
 static char *expand_template(const char *template, RJson *arguments) {
 	RStrBuf *sb = r_strbuf_new ("");
 	const char *p = template;
@@ -88,7 +99,7 @@ static char *expand_template(const char *template, RJson *arguments) {
 				char *end = strchr (p, '}');
 				if (end) {
 					char *arg = r_str_ndup (arg_start, end - arg_start);
-					const char *val = r_json_get_str (arguments, arg);
+					const char *val = prompt_json_get_str (arguments, arg);
 					p = end + 1;
 					const char *if_content = p;
 					const char *else_pos = strstr (p, "{else}");
@@ -119,7 +130,7 @@ static char *expand_template(const char *template, RJson *arguments) {
 				char *end = strchr (p, '}');
 				if (end) {
 					char *arg = r_str_ndup (p + 1, end - p - 1);
-					const char *val = r_json_get_str (arguments, arg);
+					const char *val = prompt_json_get_str (arguments, arg);
 					if (val) {
 						r_strbuf_append (sb, val);
 					}

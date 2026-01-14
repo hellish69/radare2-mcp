@@ -2,7 +2,9 @@
 
 #if R2_VERSION_NUMBER < 50909
 static st64 r_json_get_num(const RJson *json, const char *key) {
-	R_RETURN_VAL_IF_FAIL (json && key, 0);
+	if (!json || !key) {
+		return 0;
+	}
 	const RJson *field = r_json_get (json, key);
 	if (field) {
 		switch (field->type) {
@@ -20,7 +22,9 @@ static st64 r_json_get_num(const RJson *json, const char *key) {
 }
 
 static const char *r_json_get_str(const RJson *json, const char *key) {
-	R_RETURN_VAL_IF_FAIL (json && key, NULL);
+	if (!json || !key) {
+		return NULL;
+	}
 	const RJson *field = r_json_get (json, key);
 	if (!field || field->type != R_JSON_STRING) {
 		return NULL;

@@ -1,5 +1,9 @@
 /* r2mcp - MIT - Copyright 2025 - pancake, dnakov */
 
+#ifndef R2__UNIX__
+#define R2__UNIX__ 1
+#endif
+
 #include <r_core.h>
 #include <r_util/r_json.h>
 #include <r_util/pj.h>
@@ -88,7 +92,8 @@ bool r2mcp_state_init(ServerState *ss) {
 	ss->rstate.core = core;
 
 	R_LOG_INFO ("Radare2 core initialized");
-	r_log_add_callback (logcb, ss);
+	log_ss = ss;
+	r_log_add_callback (logcb);
 	return true;
 }
 
@@ -96,6 +101,8 @@ void r2mcp_state_fini(ServerState *ss) {
 	RCore *core = ss->rstate.core;
 	if (core) {
 		r_core_free (core);
+		r_log_del_callback (logcb);
+		log_ss = NULL;
 		r_strbuf_free (ss->sb);
 		ss->sb = NULL;
 		ss->rstate.core = NULL;
